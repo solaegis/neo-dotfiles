@@ -28,3 +28,5 @@
 	lp = log --pretty=oneline
 	ll = log --oneline --graph --decorate --all -20
 	search = log -S
+	st = status
+	po = push origin

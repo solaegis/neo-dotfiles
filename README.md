@@ -83,3 +83,13 @@ See comments in `~/.zprofile` for:
 - zsh-syntax-highlighting and zsh-autosuggestions clones
 
 Then run `p10k configure` in a new shell to configure the prompt.
+
+## iTerm2 status bar (optional, macOS)
+
+To set a development-focused status bar (git branch, cwd, job name, host, user, CPU/memory graphs, clock), run once:
+
+```bash
+python3 run_once_iterm_status_bar.py
+```
+
+The script updates the iTerm2 preferences plist that iTerm loads (custom folder if set, else `~/Library/Preferences`). When "Load preferences from a custom folder" (e.g. iCloud) is enabled, run the script in an environment where that path is available (e.g. on your Mac, not in a sandbox). Restart iTerm2 or open a new window for changes to take effect.
