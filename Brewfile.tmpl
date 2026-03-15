@@ -1,0 +1,40 @@
+# Homebrew formulae and casks. Generated from .chezmoidata.toml (mac / linux / hosts.<hostname>).
+# Install: brew bundle install --file="$HOME/Brewfile"
+
+{{- if eq .chezmoi.os "darwin" }}
+# --- All Macs ---
+{{- range .brew.mac.formulae }}
+brew "{{ . }}"
+{{- end }}
+{{- range .brew.mac.casks }}
+cask "{{ . }}"
+{{- end }}
+{{- with index .brew.hosts .chezmoi.hostname }}
+# --- This host only ({{ $.chezmoi.hostname }}) ---
+{{- range .formulae }}
+brew "{{ . }}"
+{{- end }}
+{{- range .casks }}
+cask "{{ . }}"
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{- if eq .chezmoi.os "linux" }}
+# --- All Linux ---
+{{- range .brew.linux.formulae }}
+brew "{{ . }}"
+{{- end }}
+{{- range .brew.linux.casks }}
+cask "{{ . }}"
+{{- end }}
+{{- with index .brew.hosts .chezmoi.hostname }}
+# --- This host only ({{ $.chezmoi.hostname }}) ---
+{{- range .formulae }}
+brew "{{ . }}"
+{{- end }}
+{{- range .casks }}
+cask "{{ . }}"
+{{- end }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,8 @@
+# Used when working in ~/git-solaegis. All GitHub URLs use the solaegis SSH key.
+
+[user]
+	name = Lewis Vavasour
+	email = lewis.vavasour@solaegis.com
+
+[url "git@github.com-solaegis:"]
+	insteadOf = git@github.com:

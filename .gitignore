@@ -1,0 +1,30 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor / IDE (when opening this repo as a workspace)
+*.swp
+*.swo
+*~
+.idea/
+*.iml
+.vscode/
+.cursor/
+
+# Local overrides and secrets (do not commit)
+*.local
+.env
+.env.*
+!.env.example
+*.key
+age.key
+
+# Chezmoi state / cache (if any written under source)
+.chezmoi.state.*
+.chezmoi.*.state
+
+# Backup and temp
+*.bak
+*.backup
+*.tmp
+*.temp

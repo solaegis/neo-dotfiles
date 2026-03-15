@@ -1,0 +1,8 @@
+# Used when working in ~/git-dadandlad. All GitHub URLs use the dadandlad SSH key.
+
+[user]
+	name = Lewis Vavasour
+	email = lewis.vavasour@dadandlad.co
+
+[url "git@github.com-dadandlad:"]
+	insteadOf = git@github.com:

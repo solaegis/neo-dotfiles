@@ -1,0 +1,8 @@
+# Used when working in ~/git-nuvent. All GitHub URLs use the nuvent SSH key.
+
+[user]
+	name = Lewis Vavasour
+	email = lewis.vavasour@nuvent.io
+
+[url "git@github.com-nuvent:"]
+	insteadOf = git@github.com:

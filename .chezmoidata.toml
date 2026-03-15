@@ -1,0 +1,86 @@
+# Source of truth for Homebrew and Mac App Store. Brewfile and mas-ids.txt are
+# generated at apply time. Sections: mac (all macOS), linux (all Linux), and
+# hosts.<hostname> (this machine only; hostname from `hostname` e.g. neo).
+
+[brew.mac]
+formulae = [
+  "chezmoi",
+  "zsh",
+  "git",
+  "fzf",
+  "age",
+  "mas",
+]
+casks = [
+  "font-meslo-lg-nerd-font",
+]
+
+[brew.linux]
+formulae = [
+  "chezmoi",
+  "zsh",
+  "git",
+  "fzf",
+  "age",
+]
+casks = []
+
+# Host-specific: only applied when hostname matches (e.g. neo).
+# Add other hosts as [brew.hosts.OTHERHOST] with formulae = [...] and/or casks = [...]
+[brew.hosts.neo]
+formulae = []
+casks = []
+
+#-----------------------------------------------------------------------------
+
+[mas.mac]
+# All Macs: Mac App Store apps (id + name for comments in generated mas-ids.txt). Capture with: mas list
+[[mas.mac.apps]]
+id = 1477110326
+name = "Capital One Shopping"
+[[mas.mac.apps]]
+id = 1472875808
+name = "CardPointers"
+[[mas.mac.apps]]
+id = 682658836
+name = "GarageBand"
+[[mas.mac.apps]]
+id = 408981434
+name = "iMovie"
+[[mas.mac.apps]]
+id = 409183694
+name = "Keynote"
+[[mas.mac.apps]]
+id = 409203825
+name = "Numbers"
+[[mas.mac.apps]]
+id = 409201541
+name = "Pages"
+[[mas.mac.apps]]
+id = 6502835663
+name = "Proton Pass for Safari"
+[[mas.mac.apps]]
+id = 1451893560
+name = "Rakuten Cash Back"
+[[mas.mac.apps]]
+id = 1519867270
+name = "Refined GitHub"
+[[mas.mac.apps]]
+id = 1532163541
+name = "SponsorBlock port for YouTube - Skip Sponsorships"
+[[mas.mac.apps]]
+id = 1475387142
+name = "Tailscale"
+[[mas.mac.apps]]
+id = 1532579087
+name = "The Camelizer"
+[[mas.mac.apps]]
+id = 6745342698
+name = "uBlock Origin Lite"
+[[mas.mac.apps]]
+id = 497799835
+name = "Xcode"
+
+[mas.hosts.neo]
+# Only on host neo
+apps = []

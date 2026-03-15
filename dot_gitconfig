@@ -1,0 +1,30 @@
+# Global git config. Order: include (base) then user/alias so this file overrides included values.
+
+[include]
+	path = ~/.config/git/github-urls.config
+
+[user]
+	name = Lewis Vavasour
+	email = lewis.vavasour@gmail.com
+
+[init]
+	defaultBranch = main
+
+[alias]
+	# Quick commit shortcuts
+	ac = !git add -A && git commit -m
+	cam = commit -am
+	# Branch management
+	br = branch -vv
+	co = checkout
+	cob = checkout -b
+	cm = !git pull && git branch --merged | grep -Ev '(^\\*|main|master|develop|prod)' | xargs -n 1 git branch -d
+	# Merge and rebase
+	ff = merge --no-ff
+	rb = rebase
+	rbi = rebase -i
+	# Logging and history
+	lg = log --graph --abbrev-commit --decorate --oneline --all
+	lp = log --pretty=oneline
+	ll = log --oneline --graph --decorate --all -20
+	search = log -S

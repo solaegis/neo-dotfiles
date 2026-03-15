@@ -1,0 +1,18 @@
+# Chezmoi configuration.
+# See: https://www.chezmoi.io/reference/configuration/
+# For machine-specific data, use ~/.config/chezmoi/chezmoi.toml (not in source).
+
+encryption = "age"
+
+[data]
+  # Optional: set in ~/.config/chezmoi/chezmoi.toml for values used in templates.
+  # email = "you@example.com"
+  # name = "Your Name"
+
+# Age: set identity (and optionally recipient) in ~/.config/chezmoi/chezmoi.toml or via env:
+#   CHEZMOI_AGE_IDENTITY_FILE=~/.config/chezmoi/age.key
+#   CHEZMOI_AGE_RECIPIENT=age1xxx... (when running chezmoi add --encrypt)
+# One-time: brew install age && age-keygen -o ~/.config/chezmoi/age.key
+[age]
+  # identity = "~/.config/chezmoi/age.key"  # set in ~/.config/chezmoi/chezmoi.toml (do not commit)
+  # recipient = "age1..."                   # for encrypting; or set CHEZMOI_AGE_RECIPIENT

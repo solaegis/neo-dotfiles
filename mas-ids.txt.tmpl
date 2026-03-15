@@ -1,0 +1,11 @@
+# Mac App Store app IDs. Generated from .chezmoidata.toml (mas.mac + mas.hosts.<hostname>). macOS only.
+{{- if eq .chezmoi.os "darwin" }}
+{{- range .mas.mac.apps }}
+{{ .id }}   # {{ .name }}
+{{- end }}
+{{- with index .mas.hosts .chezmoi.hostname }}
+{{- range .apps }}
+{{ .id }}   # {{ .name }}
+{{- end }}
+{{- end }}
+{{- end }}

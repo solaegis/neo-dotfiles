@@ -1,0 +1,11 @@
+# Keep README in source only (do not apply to home)
+README.md
+
+# Ignore OS-specific Cursor config so only the right one is applied.
+# Patterns match target paths (e.g. .config/..., Library/...).
+{{ if eq .chezmoi.os "darwin" }}
+.config/Cursor/
+{{ end }}
+{{ if eq .chezmoi.os "linux" }}
+Library/
+{{ end }}

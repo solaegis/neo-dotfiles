@@ -1,0 +1,35 @@
+# GitHub — one host alias per identity (clone as git@github.com-ALIAS:org/repo.git)
+Host github.com-acxiom
+  HostName github.com
+  IdentityFile ~/.ssh/id_ed25519_acxiom
+
+Host github.com-solaegis
+  HostName github.com
+  IdentityFile ~/.ssh/id_ed25519_solaegis
+
+Host github.com-dadandlad
+  HostName github.com
+  IdentityFile ~/.ssh/id_ed25519_dadandlad
+
+Host github.com-nuvent
+  HostName github.com
+  IdentityFile ~/.ssh/id_ed25519_nuvent
+
+# Remote development (Cursor / VS Code Remote-SSH)
+# Local network via Bonjour/mDNS
+Host atreides-local
+  HostName atreides.local
+  User lvavasour
+  IdentityFile ~/.ssh/id_ed25519_atreides
+
+# Over Tailscale (MagicDNS: atreides; or use atreides.your-tailnet.ts.net if needed)
+Host atreides-ts
+  HostName atreides
+  User lvavasour
+  IdentityFile ~/.ssh/id_ed25519_atreides
+
+# Default GitHub and other hosts
+Host github.com
+  IdentityFile ~/.ssh/id_ed25519_solaegis
+Host *
+  IdentityFile ~/.ssh/id_ed25519_solaegis

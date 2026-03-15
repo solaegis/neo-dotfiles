@@ -1,0 +1,8 @@
+# Used when working in ~/git-acxiom. All GitHub URLs use the acxiom SSH key.
+
+[user]
+	name = Lewis Vavasour
+	email = lewis.vavasour@acxiom.com
+
+[url "git@github.com-acxiom:"]
+	insteadOf = git@github.com:
