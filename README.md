@@ -1,5 +1,7 @@
 # Dotfiles (chezmoi)
 
+[![Managed by chezmoi](https://img.shields.io/badge/managed_by-chezmoi-00b0b9)](https://www.chezmoi.io/) [![Personal dotfiles](https://img.shields.io/badge/use-reference_only-lightgrey)](#)
+
 Managed by [chezmoi](https://www.chezmoi.io/). Includes zsh config (Oh My Zsh, Powerlevel10k, fzf, etc.), Cursor IDE settings, SSH agent + config, age-encrypted secrets, Homebrew (Brewfile), and Mac App Store apps (mas).
 
 ## First-time setup
