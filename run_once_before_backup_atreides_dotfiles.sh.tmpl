@@ -1,0 +1,57 @@
+{{- if or (eq .chezmoi.hostname "atreides") (eq .chezmoi.hostname "Atreides") -}}
+#!/bin/sh
+# Backup atreides dotfiles before first neo-dotfiles apply.
+# Moves existing files to ~/dotfiles-backup-before-neo-merge-YYYYMMDD/
+# Run once (content-hashed); only on atreides.
+set -eu
+
+BACKUP_ROOT="$HOME/dotfiles-backup-before-neo-merge-$(date +%Y%m%d)"
+created=false
+
+move_if_exists() {
+  src="$1"
+  dest="$2"
+  if [ -e "$src" ]; then
+    mkdir -p "$(dirname "$dest")"
+    mv "$src" "$dest"
+    echo "Moved $src -> $dest"
+    created=true
+  fi
+}
+
+mkdir -p "$BACKUP_ROOT"
+
+# Single files
+move_if_exists "$HOME/.gitconfig" "$BACKUP_ROOT/.gitconfig"
+move_if_exists "$HOME/.gitignore_global" "$BACKUP_ROOT/.gitignore_global"
+move_if_exists "$HOME/.zshenv" "$BACKUP_ROOT/.zshenv"
+move_if_exists "$HOME/.zprofile" "$BACKUP_ROOT/.zprofile"
+move_if_exists "$HOME/.zshrc" "$BACKUP_ROOT/.zshrc"
+move_if_exists "$HOME/.zshrc.local" "$BACKUP_ROOT/.zshrc.local"
+move_if_exists "$HOME/.p10k.zsh" "$BACKUP_ROOT/.p10k.zsh"
+move_if_exists "$HOME/.ssh/config" "$BACKUP_ROOT/.ssh/config"
+move_if_exists "$HOME/.Brewfile" "$BACKUP_ROOT/.Brewfile"
+
+# gitconfig-* variants
+for f in "$HOME"/.gitconfig-*; do
+  [ -e "$f" ] || continue
+  base=$(basename "$f")
+  move_if_exists "$f" "$BACKUP_ROOT/$base"
+done
+
+# Directories
+[ -d "$HOME/.config/zsh" ] && move_if_exists "$HOME/.config/zsh" "$BACKUP_ROOT/.config/zsh"
+[ -d "$HOME/.config/gcloud" ] && move_if_exists "$HOME/.config/gcloud" "$BACKUP_ROOT/.config/gcloud"
+[ -d "$HOME/.config/Cursor" ] && move_if_exists "$HOME/.config/Cursor" "$BACKUP_ROOT/.config/Cursor"
+[ -d "$HOME/.config/git" ] && move_if_exists "$HOME/.config/git" "$BACKUP_ROOT/.config/git"
+
+# Cursor settings (macOS)
+cursor_settings="$HOME/Library/Application Support/Cursor/User/settings.json"
+[ -f "$cursor_settings" ] && move_if_exists "$cursor_settings" "$BACKUP_ROOT/Library/Application Support/Cursor/User/settings.json"
+
+if [ "$created" = true ]; then
+  echo "Backup complete: $BACKUP_ROOT"
+else
+  echo "No existing dotfiles to back up."
+fi
+{{ end -}}

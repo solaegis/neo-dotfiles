@@ -1,0 +1,119 @@
+#!/bin/sh
+# Configure Time Machine to back up to the Samba share on the home NAS.
+# Runs once per machine (chezmoi run_once_ prefix).
+#
+# NAS:   nas.home.solaegis.com
+# Share: //nas.home.solaegis.com/timemachine  (SMB)
+# User:  lvavasour
+#
+# macOS Time Machine API
+#   sudo tmutil setdestination -a smb://user@host/share
+#     Adds (not replaces) a destination; prompts for SMB password once
+#     and stores it in the login keychain.
+#   tmutil destinationinfo
+#     Prints configured destinations; shows UUID, URL, last-backup time.
+#
+# Idempotency: checked against the SMB URL, NOT a UUID.
+# The UUID in destinationinfo is assigned per-client by macOS when the
+# destination is first registered; it differs on every machine and cannot
+# be used as a portable identifier across machines.
+
+{{ if ne .chezmoi.os "darwin" -}}
+echo "Skipping Time Machine setup — not macOS ({{ .chezmoi.os }})."
+exit 0
+{{ end -}}
+
+set -eu
+
+NAS_HOST="nas.home.solaegis.com"
+NAS_USER="lvavasour"
+NAS_SHARE="timemachine"
+SMB_URL="smb://${NAS_USER}@${NAS_HOST}/${NAS_SHARE}"
+
+# ── Already configured? (URL-based, portable across machines) ──────────────
+if tmutil destinationinfo 2>/dev/null | grep -qF "${NAS_HOST}/${NAS_SHARE}"; then
+  echo "✅ Time Machine destination already configured (${SMB_URL})."
+  tmutil destinationinfo
+  exit 0
+fi
+
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "  Time Machine setup — {{ .chezmoi.hostname }}"
+echo "  Destination: ${SMB_URL}"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# ── NAS reachability check ──────────────────────────────────────────────────
+echo ""
+echo "🔍 Checking reachability of ${NAS_HOST} …"
+if ! ping -c 1 -W 2000 "${NAS_HOST}" >/dev/null 2>&1; then
+  echo ""
+  echo "⚠️  Cannot reach ${NAS_HOST}."
+  echo "   Ensure the NAS is on the network (or VPN / Tailscale if remote)."
+  echo ""
+  printf "Continue anyway? [y/N] "
+  read -r reply
+  case "${reply}" in
+    [Yy]*) : ;;
+    *)
+      echo "Time Machine setup cancelled."
+      exit 0
+      ;;
+  esac
+fi
+
+# ── Confirmation ────────────────────────────────────────────────────────────
+echo ""
+echo "This will add ${SMB_URL} as a Time Machine destination."
+echo "You will be prompted for:"
+echo "  1. Your SMB/NAS password (stored once in the login keychain)"
+echo "  2. Your macOS admin password (for tmutil)"
+echo ""
+printf "Continue? [y/N] "
+read -r reply
+case "${reply}" in
+  [Yy]*) : ;;
+  *)
+    echo "Time Machine setup cancelled."
+    exit 0
+    ;;
+esac
+
+# ── Add destination ─────────────────────────────────────────────────────────
+echo ""
+echo "🚀 Adding Time Machine destination …"
+echo "   (You may be prompted for your NAS password and macOS admin password)"
+echo ""
+
+if sudo tmutil setdestination -a "${SMB_URL}"; then
+  echo ""
+  echo "✅ Destination added."
+else
+  echo ""
+  echo "❌ tmutil setdestination failed."
+  echo ""
+  echo "Common causes:"
+  echo "  • Wrong NAS password — retry manually:"
+  echo "      sudo tmutil setdestination -a '${SMB_URL}'"
+  echo "  • SMB share not exported for Time Machine on the NAS"
+  echo "  • Firewall blocking SMB (port 445)"
+  exit 1
+fi
+
+# ── Verify ──────────────────────────────────────────────────────────────────
+echo ""
+echo "📋 Verifying …"
+if tmutil destinationinfo 2>/dev/null | grep -qF "${NAS_HOST}/${NAS_SHARE}"; then
+  echo "✅ Time Machine destination verified."
+  echo ""
+  tmutil destinationinfo
+  echo ""
+  echo "🎉 Done. Time Machine will start its first backup automatically."
+  echo "   Monitor progress: System Settings → General → Time Machine"
+  echo "   First backup may take several hours."
+else
+  echo ""
+  echo "⚠️  Could not verify destination in destinationinfo after setup."
+  echo "   Check 'tmutil destinationinfo' manually to confirm."
+  echo ""
+  tmutil destinationinfo
+fi

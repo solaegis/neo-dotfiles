@@ -25,3 +25,6 @@ ZSH_CONFIG_DIR="${ZSH_CONFIG_DIR:-$ZDOTDIR/.zsh}"
 [[ -f "$ZSH_CONFIG_DIR/functions.zsh" ]]      && source "$ZSH_CONFIG_DIR/functions.zsh"
 
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# Host-local overrides (unmanaged; optional)
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
