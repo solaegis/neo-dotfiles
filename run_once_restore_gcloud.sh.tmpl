@@ -1,0 +1,19 @@
+#!/bin/sh
+# Restore gcloud config from age-encrypted tarball (when present).
+# On atreides: tar -czf - -C ~/.config gcloud | age -e -r RECIPIENT -o gcloud.tar.age
+# Add to repo: private_dot_config/gcloud/gcloud.tar.age
+# Chezmoi decrypts .age on apply; this script extracts the resulting .tar.
+set -eu
+
+GCLOUD_DIR="$HOME/.config/gcloud"
+TAR_FILE="$GCLOUD_DIR/gcloud.tar"
+
+if [[ -f "$TAR_FILE" ]]; then
+  echo "Restoring gcloud config from $TAR_FILE"
+  mkdir -p "$GCLOUD_DIR"
+  (cd "$HOME/.config" && tar -xzf "$TAR_FILE")
+  rm -f "$TAR_FILE"
+  echo "gcloud config restored."
+else
+  echo "No gcloud.tar found; skipping restore."
+fi

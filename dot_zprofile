@@ -22,6 +22,23 @@ if [[ -n "${SSH_AUTH_SOCK:-}" ]] && command -v ssh-add >/dev/null 2>&1; then
   done
 fi
 
+# --- OrbStack (Docker, orb host) ---------------------------------------------
+[[ -f "$HOME/.orbstack/shell/init.zsh" ]] && source "$HOME/.orbstack/shell/init.zsh"
+
+# --- GCP SDK (gcloud) --------------------------------------------------------
+[[ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]] && source "$HOME/google-cloud-sdk/path.zsh.inc"
+
+# --- Node / JDK (Homebrew; add if dirs exist) --------------------------------
+[[ -d /opt/homebrew/opt/node@20/bin ]] && path=( /opt/homebrew/opt/node@20/bin $path )
+[[ -d /usr/local/opt/node@20/bin ]] && path=( /usr/local/opt/node@20/bin $path )
+[[ -d /opt/homebrew/opt/openjdk@11/bin ]] && path=( /opt/homebrew/opt/openjdk@11/bin $path )
+[[ -d /usr/local/opt/openjdk@11/bin ]] && path=( /usr/local/opt/openjdk@11/bin $path )
+
+# --- AWS profile (host guard for work machine) -------------------------------
+if [[ "$(hostname)" =~ "^(atreides|Atreides)$" ]]; then
+  export AWS_DEFAULT_PROFILE="${AWS_DEFAULT_PROFILE:-default}"
+fi
+
 # --- Brew requirements (install once, then optional) -------------------------
 # Run these for the full zsh setup (macOS with Homebrew):
 #

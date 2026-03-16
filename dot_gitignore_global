@@ -1,0 +1,7 @@
+# Global gitignore — applied to all repos via core.excludesfile
+.DS_Store
+*.swp
+*.swo
+*~
+*.bak
+Thumbs.db

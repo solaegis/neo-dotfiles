@@ -1,0 +1,14 @@
+# Used when working in ~/git/lvavasour. All GitHub URLs use the LV SSH key.
+
+[user]
+	name = Lewis Vavasour
+	email = lewis.vavasour@gmail.com
+
+[core]
+	sshCommand = "ssh -i ~/.ssh/id_rsa_lv"
+
+[credential]
+	helper = osxkeychain
+
+[url "git@github.com-lv:"]
+	insteadOf = git@github.com:

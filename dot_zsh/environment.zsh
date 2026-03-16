@@ -19,11 +19,24 @@ setopt HIST_IGNORE_SPACE     # Don't record lines starting with space
 setopt HIST_REDUCE_BLANKS
 setopt HIST_VERIFY           # Show expanded history line before running
 
-# --- Editor / pager ----------------------------------------------------------
-export EDITOR="${EDITOR:-vim}"
-export VISUAL="${VISUAL:-$EDITOR}"
+# --- Editor fallback chain (code -> cursor -> vim) ----------------------------
+if command -v cursor >/dev/null 2>&1; then
+  export EDITOR="${EDITOR:-cursor --wait}"
+  export VISUAL="${VISUAL:-$EDITOR}"
+elif command -v code >/dev/null 2>&1; then
+  export EDITOR="${EDITOR:-code --wait}"
+  export VISUAL="${VISUAL:-$EDITOR}"
+else
+  export EDITOR="${EDITOR:-vim}"
+  export VISUAL="${VISUAL:-$EDITOR}"
+fi
 export PAGER="${PAGER:-less}"
 export LESS="-R"
 
-# --- Path (append custom bins if present) ------------------------------------
+# --- Cargo env (Rust) --------------------------------------------------------
+[[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
+
+# --- Path: go/bin, cargo/bin, local/bin --------------------------------------
+[[ -d "$HOME/go/bin" ]] && path=( "$HOME/go/bin" $path )
+[[ -d "$HOME/.cargo/bin" ]] && path=( "$HOME/.cargo/bin" $path )
 [[ -d "$HOME/.local/bin" ]] && path=( "$HOME/.local/bin" $path )

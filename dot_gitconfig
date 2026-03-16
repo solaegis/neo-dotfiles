@@ -3,6 +3,23 @@
 [include]
 	path = ~/.config/git/github-urls.config
 
+[core]
+	excludesfile = ~/.gitignore_global
+	editor = cursor --wait
+
+[includeIf "gitdir:~/git/solaegis/"]
+	path = ~/.gitconfig-solaegis
+[includeIf "gitdir:~/git/acxiom/"]
+	path = ~/.gitconfig-acxiom
+[includeIf "gitdir:~/git-work/"]
+	path = ~/.gitconfig-acxiom
+[includeIf "gitdir:~/git/dadandlad/"]
+	path = ~/.gitconfig-dadandlad
+[includeIf "gitdir:~/git/nuvent/"]
+	path = ~/.gitconfig-nuvent
+[includeIf "gitdir:~/git/lvavasour/"]
+	path = ~/.gitconfig-lv
+
 [user]
 	name = Lewis Vavasour
 	email = lewis.vavasour@gmail.com

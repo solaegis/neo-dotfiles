@@ -1,0 +1,68 @@
+# OrbStack (Docker, orb host) — include first if present
+Include ~/.orbstack/ssh/config
+
+# GitHub — one host alias per identity (clone as git@github.com-ALIAS:org/repo.git)
+Host github.com-acxiom
+  HostName github.com
+  IdentityFile ~/.ssh/id_ed25519_acxiom
+
+Host github.com-solaegis
+  HostName github.com
+  IdentityFile ~/.ssh/id_ed25519_solaegis
+
+Host github.com-dadandlad
+  HostName github.com
+  IdentityFile ~/.ssh/id_ed25519_dadandlad
+
+Host github.com-nuvent
+  HostName github.com
+  IdentityFile ~/.ssh/id_ed25519_nuvent
+
+Host github.com-lv
+  HostName github.com
+  IdentityFile ~/.ssh/id_rsa_lv
+
+Host github.com-work
+  HostName github.com
+  IdentityFile ~/.ssh/id_rsa_work
+
+# Homelab (solaegis home)
+Host desktop
+  HostName 100.88.223.50
+  IdentityFile ~/.ssh/id_ed25519_solaegis
+
+Host homepage
+  IdentityFile ~/.ssh/id_ed25519_solaegis
+  ForwardAgent yes
+
+Host pve-prod-1
+  IdentityFile ~/.ssh/id_ed25519_solaegis
+  ForwardAgent yes
+
+Host pve-prod-2
+  IdentityFile ~/.ssh/id_ed25519_solaegis
+  ForwardAgent yes
+
+# Remote development (Cursor / VS Code Remote-SSH)
+Host atreides-local
+  HostName atreides.local
+  User lvavasour
+  IdentityFile ~/.ssh/id_ed25519_atreides
+
+Host atreides-ts
+  HostName atreides
+  User lvavasour
+  IdentityFile ~/.ssh/id_ed25519_atreides
+
+# Default GitHub and other hosts
+Host github.com
+  IdentityFile ~/.ssh/id_ed25519_solaegis
+
+Host *
+  AddKeysToAgent yes
+  UseKeychain yes
+  IdentitiesOnly yes
+  ServerAliveInterval 60
+  ServerAliveCountMax 3
+  HashKnownHosts yes
+  IdentityFile ~/.ssh/id_ed25519_solaegis
