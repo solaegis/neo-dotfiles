@@ -52,20 +52,18 @@ alias kgpa='kubectl get pods -A'
 alias kdp='kubectl describe pod'
 alias kln='kubectl get nodes'
 
-# --- Chezmoi (cm + short subcommands) ----------------------------------------
-# Usage: cm st, cm ap, cm a ~/.zshrc, etc. No args -> chezmoi status.
+# --- Chezmoi (gitops-style wrapper) ------------------------------------------
+# Usage: cm add <file>, cm commit -m "msg", cm push, cm pull, cm git <args>
 cm() {
   local sub="${1:-}"
   shift
   case "$sub" in
-    st)     chezmoi status "$@" ;;
-    a)      chezmoi add "$@" ;;
-    ap)     chezmoi apply "$@" ;;
-    d)      chezmoi diff "$@" ;;
-    ed)     chezmoi edit "$@" ;;
-    re)     chezmoi re-add "$@" ;;
-    '')     chezmoi status ;;
-    *)      chezmoi "$sub" "$@" ;;
+    add)    chezmoi add "$@" ;;
+    commit) chezmoi git -- commit "$@" ;;
+    push)   chezmoi git -- push "$@" ;;
+    pull)   chezmoi git -- pull "$@" && chezmoi apply ;;
+    git)    chezmoi git -- "$@" ;;
+    *)      echo "Usage: cm add|commit|push|pull|git" >&2; return 1 ;;
   esac
 }
 

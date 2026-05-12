@@ -19,6 +19,9 @@ Thumbs.db
 *.key
 age.key
 
+# Claude Code worktrees
+.claude/worktrees/
+
 # Chezmoi state / cache (if any written under source)
 .chezmoi.state.*
 .chezmoi.*.state
