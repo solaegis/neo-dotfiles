@@ -16,15 +16,19 @@ Host github.com-nuvent
   IdentityFile ~/.ssh/id_ed25519_nuvent
 
 # Remote development (Cursor / VS Code Remote-SSH)
-# Local network via Bonjour/mDNS
-Host atreides-local
-  HostName atreides.local
+# Cursor is blocked from LAN by macOS Local Network privacy; route via localhost relay.
+# Relay: ~/Library/LaunchAgents/com.lvavasour.atreides-ssh-relay.plist
+Host atreides.local
+  HostName 127.0.0.1
+  Port 2222
   User lvavasour
   IdentityFile ~/.ssh/id_ed25519_atreides
+  CheckHostIP no
+  StrictHostKeyChecking accept-new
 
-# Over Tailscale (MagicDNS: atreides; or use atreides.your-tailnet.ts.net if needed)
-Host atreides-ts
-  HostName atreides
+# Over Tailscale
+Host atreides
+  HostName 100.88.223.50
   User lvavasour
   IdentityFile ~/.ssh/id_ed25519_atreides
 

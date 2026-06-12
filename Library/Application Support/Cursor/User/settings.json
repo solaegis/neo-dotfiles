@@ -3,7 +3,10 @@
     "terminal.integrated.fontFamily": "MesloLGS NF, Menlo, monospace",
     "workbench.panel.defaultLocation": "bottom",
     "remote.SSH.remotePlatform": {
-        "atreides-local": "macOS"
+        "atreides.local": "macOS",
+        "atreides": "macOS"
     },
+    "remote.SSH.defaultExtensions": [],
+    "remote.SSH.path": "/opt/homebrew/bin/ssh",
     "terminal.integrated.showExitAlert": false
 }
