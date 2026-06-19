@@ -1,0 +1,8 @@
+#!/bin/sh
+# Run package post-install hooks registered in .chezmoidata.packages.toml.
+set -e
+{{- if eq .chezmoi.hostname "neo" }}
+if command -v python3 >/dev/null 2>&1 && [ -f "$HOME/git/solaegis/neo-dotfiles/run_once_iterm_status_bar.py" ]; then
+  python3 "$HOME/git/solaegis/neo-dotfiles/run_once_iterm_status_bar.py" || true
+fi
+{{- end }}

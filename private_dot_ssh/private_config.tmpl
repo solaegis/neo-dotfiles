@@ -1,0 +1,50 @@
+# GitHub — host aliases for allowed profiles only.
+{{- $ctx := .context | default "personal" -}}
+{{- $enabled := .enabledWorkProfiles | default list -}}
+{{- $enabledSet := dict -}}
+{{- range $enabled -}}
+{{- $_ := set $enabledSet . true -}}
+{{- end -}}
+{{- $primarySlug := "" -}}
+{{- if hasPrefix $ctx "work-" -}}
+{{- $primarySlug = trimPrefix $ctx "work-" -}}
+{{- end -}}
+
+{{- range $name, $p := .profiles }}
+{{- if and (ne $name "personal") $p.github_host_alias (ne $p.github_host_alias "github.com") }}
+{{- $allowed := or (eq $primarySlug $name) (index $enabledSet $name) }}
+{{- if $allowed }}
+Host {{ $p.github_host_alias }}
+  HostName github.com
+  IdentityFile ~/.ssh/id_ed25519_{{ $p.ssh_key }}
+
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{- if eq $ctx "personal" }}
+# Remote development (Cursor / VS Code Remote-SSH)
+Host atreides.local
+  HostName 127.0.0.1
+  Port 2222
+  User lvavasour
+  IdentityFile ~/.ssh/id_ed25519_atreides
+  CheckHostIP no
+  StrictHostKeyChecking accept-new
+
+Host atreides
+  HostName 100.88.223.50
+  User lvavasour
+  IdentityFile ~/.ssh/id_ed25519_atreides
+{{- end }}
+
+# Default GitHub and other hosts
+{{- $defaultKey := "neo" -}}
+{{- if hasPrefix $ctx "work-" -}}
+{{- $defaultKey = trimPrefix $ctx "work-" -}}
+{{- end }}
+
+Host github.com
+  IdentityFile ~/.ssh/id_ed25519_{{ $defaultKey }}
+Host *
+  IdentityFile ~/.ssh/id_ed25519_{{ $defaultKey }}

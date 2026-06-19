@@ -1,5 +1,5 @@
 # =============================================================================
-# Aliases. Portable (macOS + Linux); safe for SSH/GCP sessions.
+# Aliases — shared baseline (portable macOS + Linux).
 # =============================================================================
 
 # --- Core --------------------------------------------------------------------
@@ -38,22 +38,7 @@ alias gcm='git commit -m'
 alias ga='git add'
 alias glog='git log --oneline -20'
 
-# --- Docker ------------------------------------------------------------------
-alias d='docker'
-alias dc='docker compose'
-alias dcu='docker compose up -d'
-alias dcd='docker compose down'
-alias dcl='docker compose logs -f'
-
-# --- Kubectl (GCP / k8s) -----------------------------------------------------
-alias k='kubectl'
-alias kgp='kubectl get pods'
-alias kgpa='kubectl get pods -A'
-alias kdp='kubectl describe pod'
-alias kln='kubectl get nodes'
-
 # --- Chezmoi (gitops-style wrapper) ------------------------------------------
-# Usage: cm add <file>, cm commit -m "msg", cm push, cm pull, cm git <args>
 cm() {
   local sub="${1:-}"
   shift

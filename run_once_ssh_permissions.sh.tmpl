@@ -1,0 +1,24 @@
+#!/bin/sh
+# Fix SSH permissions for keys that chezmoi manages on this machine.
+set -e
+mkdir -p "$HOME/.ssh"
+chmod 700 "$HOME/.ssh"
+if [ -f "$HOME/.ssh/config" ]; then chmod 600 "$HOME/.ssh/config"; fi
+{{- $ctx := .context | default "personal" -}}
+{{- if eq $ctx "personal" }}
+for key in "$HOME/.ssh/id_ed25519_neo" "$HOME/.ssh/id_ed25519_atreides"; do
+  if [ -f "$key" ]; then chmod 600 "$key"; fi
+done
+{{- else if hasPrefix $ctx "work-" }}
+for key in "$HOME/.ssh/id_ed25519_{{ trimPrefix $ctx "work-" }}"; do
+  if [ -f "$key" ]; then chmod 600 "$key"; fi
+done
+{{- end }}
+{{- range $p := .enabledWorkProfiles | default list }}
+for key in "$HOME/.ssh/id_ed25519_{{ (index $.profiles $p).ssh_key }}"; do
+  if [ -f "$key" ]; then chmod 600 "$key"; fi
+done
+{{- end }}
+for key in "$HOME/.ssh/id_ed25519" "$HOME/.ssh/id_rsa"; do
+  if [ -f "$key" ]; then chmod 600 "$key"; fi
+done

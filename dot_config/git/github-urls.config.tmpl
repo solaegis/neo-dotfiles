@@ -1,0 +1,24 @@
+# Rewrite GitHub URLs so git clone / remote use the right SSH host (and key).
+# Generated from enabled work profiles.
+
+{{- $ctx := .context | default "personal" -}}
+{{- $enabled := .enabledWorkProfiles | default list -}}
+{{- $enabledSet := dict -}}
+{{- range $enabled -}}
+{{- $_ := set $enabledSet . true -}}
+{{- end -}}
+{{- $primarySlug := "" -}}
+{{- if hasPrefix $ctx "work-" -}}
+{{- $primarySlug = trimPrefix $ctx "work-" -}}
+{{- end -}}
+{{- range $name, $p := .profiles }}
+{{- if and $p.github_orgs (ne $name "personal") }}
+{{- $allowed := or (eq $primarySlug $name) (index $enabledSet $name) }}
+{{- if $allowed }}
+{{- range $p.github_orgs }}
+[url "git@{{ $p.github_host_alias }}:{{ . }}/"]
+	insteadOf = git@github.com:{{ . }}/
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

@@ -2,10 +2,66 @@
 README.md
 
 # Ignore OS-specific Cursor config so only the right one is applied.
-# Patterns match target paths (e.g. .config/..., Library/...).
 {{ if eq .chezmoi.os "darwin" }}
 .config/Cursor/
 {{ end }}
 {{ if eq .chezmoi.os "linux" }}
 Library/
 {{ end }}
+
+{{- $ctx := .context | default "personal" -}}
+{{- $enabled := .enabledWorkProfiles | default list -}}
+{{- $enabledSet := dict -}}
+{{- range $enabled -}}
+{{- $_ := set $enabledSet . true -}}
+{{- end -}}
+{{- $primarySlug := "" -}}
+{{- if hasPrefix $ctx "work-" -}}
+{{- $primarySlug = trimPrefix $ctx "work-" -}}
+{{- end -}}
+
+# Profile SSH keys — ignore unless primary context or in enabledWorkProfiles
+{{- range $name, $p := .profiles }}
+{{- if and (ne $name "personal") $p.ssh_key }}
+{{- $allowed := or (eq $primarySlug $name) (index $enabledSet $name) }}
+{{- if not $allowed }}
+.ssh/id_ed25519_{{ $p.ssh_key }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+# Personal-only keys on strict work machines
+{{- if hasPrefix $ctx "work-" }}
+.ssh/id_ed25519_neo
+.ssh/id_ed25519_atreides
+{{- end }}
+
+# Profile gitconfig fragments — ignore unless profile allowed
+{{- range $name, $p := .profiles }}
+{{- if and (ne $name "personal") $p.git_dir }}
+{{- $allowed := or (eq $primarySlug $name) (index $enabledSet $name) }}
+{{- if not $allowed }}
+.gitconfig-{{ $name }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+# Personal-only app configs on work machines
+{{- if hasPrefix $ctx "work-" }}
+Library/Preferences/eu.exelban.Stats.plist
+{{- end }}
+
+# iTerm status bar script only on neo (primary dev machine)
+{{- if ne .chezmoi.hostname "neo" }}
+iterm_status_bar.py
+{{- end }}
+
+# MAS install skipped on work context (App Store often blocked)
+{{- if hasPrefix $ctx "work-" }}
+mas_install.sh
+{{- end }}
+
+# Legacy zsh modules replaced by chezmoitemplates
+.zsh/aliases.zsh
+.zsh/environment.zsh
+.zsh/oh-my-zsh.zsh

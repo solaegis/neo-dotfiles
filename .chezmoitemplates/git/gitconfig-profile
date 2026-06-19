@@ -1,0 +1,8 @@
+# Work git identity for primary work context.
+
+[user]
+	name = {{ .profile.git_name }}
+	email = {{ .profile.email }}
+
+[url "{{ .profile.github_host_alias }}:"]
+	insteadOf = git@github.com:

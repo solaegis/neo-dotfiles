@@ -1,20 +1,27 @@
 # =============================================================================
-# Main zsh config — sources modular files. Edit ~/.zsh/*.zsh for changes.
+# Main zsh config — sources modular files. Edit via chezmoi source.
 # =============================================================================
-# Powerlevel10k instant prompt — keep this block near the top for fast startup.
 [[ -f "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]] \
   && source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 
 ZDOTDIR="${ZDOTDIR:-$HOME}"
 ZSH_CONFIG_DIR="${ZSH_CONFIG_DIR:-$ZDOTDIR/.zsh}"
 
-# Load modules (order matters: env first, then OMZ/plugins, then aliases/completion)
-[[ -f "$ZSH_CONFIG_DIR/environment.zsh" ]]    && source "$ZSH_CONFIG_DIR/environment.zsh"
-[[ -f "$ZSH_CONFIG_DIR/oh-my-zsh.zsh" ]]      && source "$ZSH_CONFIG_DIR/oh-my-zsh.zsh"
-[[ -f "$ZSH_CONFIG_DIR/aliases.zsh" ]]        && source "$ZSH_CONFIG_DIR/aliases.zsh"
+{{ template "zsh/environment-shared.zsh" . }}
+{{ template "zsh/oh-my-zsh-shared.zsh" . }}
+{{ template "zsh/aliases-shared.zsh" . }}
+
+{{- $ctx := .context | default "personal" -}}
+{{- if eq $ctx "personal" }}
+{{ template "zsh/personal.zsh" . }}
+{{- end }}
+{{- $workTooling := or (hasPrefix $ctx "work-") (gt ((.enabledWorkProfiles | default list) | len) 0) -}}
+{{- if $workTooling }}
+{{ template "zsh/work-common.zsh" . }}
+{{- end }}
+
 [[ -f "$ZSH_CONFIG_DIR/completion.zsh" ]]     && source "$ZSH_CONFIG_DIR/completion.zsh"
 [[ -f "$ZSH_CONFIG_DIR/keybindings.zsh" ]]    && source "$ZSH_CONFIG_DIR/keybindings.zsh"
 [[ -f "$ZSH_CONFIG_DIR/functions.zsh" ]]      && source "$ZSH_CONFIG_DIR/functions.zsh"
 
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh

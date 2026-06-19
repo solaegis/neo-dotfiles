@@ -1,0 +1,42 @@
+# Profile registry — safe to commit (no secrets).
+# Used by templates for git, SSH, and brew/mas layering.
+
+[profiles.personal]
+git_name = "Lewis Vavasour"
+email = "lewis.vavasour@gmail.com"
+git_dir = ""
+ssh_key = "neo"
+github_host_alias = "github.com"
+github_orgs = []
+
+[profiles.solaegis]
+git_name = "Lewis Vavasour"
+email = "lewis.vavasour@solaegis.com"
+git_dir = "solaegis"
+ssh_key = "solaegis"
+github_host_alias = "github.com-solaegis"
+github_orgs = ["solaegis"]
+
+[profiles.acxiom]
+git_name = "Lewis Vavasour"
+email = "lewis.vavasour@acxiom.com"
+git_dir = "acxiom"
+ssh_key = "acxiom"
+github_host_alias = "github.com-acxiom"
+github_orgs = ["acxiom"]
+
+[profiles.dadandlad]
+git_name = "Lewis Vavasour"
+email = "lewis.vavasour@dadandlad.co"
+git_dir = "dadandlad"
+ssh_key = "dadandlad"
+github_host_alias = "github.com-dadandlad"
+github_orgs = ["dadandlad"]
+
+[profiles.nuvent]
+git_name = "Lewis Vavasour"
+email = "lewis.vavasour@nuvent.io"
+git_dir = "nuvent"
+ssh_key = "nuvent"
+github_host_alias = "github.com-nuvent"
+github_orgs = ["nuvent"]

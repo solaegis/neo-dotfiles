@@ -1,0 +1,60 @@
+# Package → configuration manifest.
+# Links brew/cask/mas packages to chezmoi-managed config targets.
+
+[packages.chezmoi]
+type = "formula"
+layer = "shared"
+configs = [
+  { target = "dot_zshrc.tmpl", method = "template" },
+]
+
+[packages.zsh]
+type = "formula"
+layer = "shared"
+configs = [
+  { target = "dot_zprofile.tmpl", method = "template" },
+  { target = "dot_zsh/environment-shared.zsh", method = "included_in_zsh" },
+]
+
+[packages.fzf]
+type = "formula"
+layer = "shared"
+configs = [
+  { target = "dot_zsh/completion.zsh", method = "included_in_zsh" },
+]
+
+[packages.git]
+type = "formula"
+layer = "shared"
+configs = [
+  { target = "dot_gitconfig.tmpl", method = "template" },
+  { target = "dot_config/git/github-urls.config.tmpl", method = "template" },
+]
+
+[packages.iterm2]
+type = "cask"
+layer = "shared"
+configs = [
+  { target = "run_once_iterm_status_bar.py", method = "run_once" },
+]
+
+[packages.stats]
+type = "cask"
+layer = "personal"
+configs = [
+  { target = "Library/Preferences/eu.exelban.Stats.plist", method = "chezmoi_add" },
+]
+
+[packages.rust]
+type = "formula"
+layer = "shared"
+configs = [
+  { target = "dot_cargo/config.toml", method = "chezmoi_add_if_exists" },
+]
+
+[packages.cursor]
+type = "cask"
+layer = "shared"
+configs = [
+  { target = "Library/Application Support/Cursor/User/settings.json", method = "managed" },
+]

@@ -1,0 +1,5 @@
+# Personal git identity (primary context = personal).
+
+[user]
+	name = {{ (index .profiles "personal").git_name }}
+	email = {{ (index .profiles "personal").email }}

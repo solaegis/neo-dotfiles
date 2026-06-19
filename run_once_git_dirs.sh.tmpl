@@ -1,0 +1,9 @@
+#!/bin/sh
+# Create per-identity git directories for enabled work profiles.
+set -e
+{{- range $p := .enabledWorkProfiles | default list }}
+{{- $dir := (index $.profiles $p).git_dir }}
+{{- if $dir }}
+mkdir -p "$HOME/git/{{ $dir }}"
+{{- end }}
+{{- end }}

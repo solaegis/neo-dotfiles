@@ -1,11 +1,31 @@
-# Mac App Store app IDs. Generated from .chezmoidata.toml (mas.mac + mas.hosts.<hostname>). macOS only.
+# Mac App Store app IDs. Generated from .chezmoidata.toml. macOS only.
 {{- if eq .chezmoi.os "darwin" }}
-{{- range .mas.mac.apps }}
+
+# --- Shared ---
+{{- range .mas.shared.apps | default list }}
 {{ .id }}   # {{ .name }}
 {{- end }}
+
+{{- $ctx := .context | default "personal" -}}
+{{- if eq $ctx "personal" }}
+# --- Personal ---
+{{- range .mas.personal.apps | default list }}
+{{ .id }}   # {{ .name }}
+{{- end }}
+{{- else if hasPrefix $ctx "work-" }}
+{{- $slug := trimPrefix $ctx "work-" }}
+{{- with index .mas.profiles $slug }}
+{{- range .apps | default list }}
+{{ .id }}   # {{ .name }}
+{{- end }}
+{{- end }}
+{{- end }}
+
 {{- with index .mas.hosts .chezmoi.hostname }}
-{{- range .apps }}
+# --- Host: {{ $.chezmoi.hostname }} ---
+{{- range .apps | default list }}
 {{ .id }}   # {{ .name }}
 {{- end }}
 {{- end }}
+
 {{- end }}

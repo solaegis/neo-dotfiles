@@ -1,8 +1,14 @@
-# Source of truth for Homebrew and Mac App Store. Brewfile and mas-ids.txt are
-# generated at apply time. Sections: mac (all macOS), linux (all Linux), and
-# hosts.<hostname> (this machine only; hostname from `hostname` e.g. neo).
+# Source of truth for Homebrew and Mac App Store.
+# Brewfile and mas-ids.txt are generated at apply time.
+#
+# Layer precedence (templates compose in order):
+#   shared → OS (linux) → context (personal/work) → work profile → enabledWorkProfiles → hostname
 
-[brew.mac]
+# ----------------------------------------------------------------------------- 
+# Layer 0: shared baseline (all contexts, all macOS hosts)
+# -----------------------------------------------------------------------------
+
+[brew.shared]
 formulae = [
   "chezmoi",
   "zsh",
@@ -10,10 +16,25 @@ formulae = [
   "fzf",
   "age",
   "mas",
+  "openssh",
+  "cmake",
+  "rust",
+  "tree",
+  "go-task",
 ]
 casks = [
   "font-meslo-lg-nerd-font",
+  "iterm2",
 ]
+taps = []
+vscode = [
+  "anysphere.remote-ssh",
+]
+cargo = [
+  "cargo-outdated",
+  "dotward",
+]
+services = []
 
 [brew.linux]
 formulae = [
@@ -24,63 +45,119 @@ formulae = [
   "age",
 ]
 casks = []
+taps = []
+vscode = []
+cargo = []
+services = []
 
-# Host-specific: only applied when hostname matches (e.g. neo).
-# Add other hosts as [brew.hosts.OTHERHOST] with formulae = [...] and/or casks = [...]
+# ----------------------------------------------------------------------------- 
+# Layer 1a: personal context extras
+# -----------------------------------------------------------------------------
+
+[brew.personal]
+formulae = []
+casks = [
+  "codexbar",
+  "pearcleaner",
+  "stats",
+  "supasidebar",
+]
+
+# ----------------------------------------------------------------------------- 
+# Layer 1b: work context extras
+# -----------------------------------------------------------------------------
+
+[brew.work]
+formulae = []
+casks = [
+  "zulufx",
+]
+
+# Work profile-specific packages (consultant multi-client)
+[brew.profiles.solaegis]
+formulae = []
+casks = []
+
+[brew.profiles.acxiom]
+formulae = []
+casks = []
+
+[brew.profiles.dadandlad]
+formulae = []
+casks = []
+
+[brew.profiles.nuvent]
+formulae = []
+casks = []
+
+# Host-specific brew overrides
 [brew.hosts.neo]
 formulae = []
 casks = []
 
-#-----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------- 
+# Mac App Store — layered like brew
+# -----------------------------------------------------------------------------
 
-[mas.mac]
-# All Macs: Mac App Store apps (id + name for comments in generated mas-ids.txt). Capture with: mas list
-[[mas.mac.apps]]
-id = 1477110326
-name = "Capital One Shopping"
-[[mas.mac.apps]]
-id = 1472875808
-name = "CardPointers"
-[[mas.mac.apps]]
-id = 682658836
-name = "GarageBand"
-[[mas.mac.apps]]
-id = 408981434
-name = "iMovie"
-[[mas.mac.apps]]
-id = 409183694
-name = "Keynote"
-[[mas.mac.apps]]
-id = 409203825
-name = "Numbers"
-[[mas.mac.apps]]
-id = 409201541
-name = "Pages"
-[[mas.mac.apps]]
-id = 6502835663
-name = "Proton Pass for Safari"
-[[mas.mac.apps]]
-id = 1451893560
-name = "Rakuten Cash Back"
-[[mas.mac.apps]]
-id = 1519867270
-name = "Refined GitHub"
-[[mas.mac.apps]]
-id = 1532163541
-name = "SponsorBlock port for YouTube - Skip Sponsorships"
-[[mas.mac.apps]]
-id = 1475387142
-name = "Tailscale"
-[[mas.mac.apps]]
-id = 1532579087
-name = "The Camelizer"
-[[mas.mac.apps]]
-id = 6745342698
-name = "uBlock Origin Lite"
-[[mas.mac.apps]]
+[[mas.shared.apps]]
 id = 497799835
 name = "Xcode"
 
+[[mas.shared.apps]]
+id = 1475387142
+name = "Tailscale"
+
+[[mas.personal.apps]]
+id = 310633997
+name = "WhatsApp"
+
+[[mas.personal.apps]]
+id = 1477110326
+name = "Capital One Shopping"
+
+[[mas.personal.apps]]
+id = 1472875808
+name = "CardPointers"
+
+[[mas.personal.apps]]
+id = 6502835663
+name = "Proton Pass for Safari"
+
+[[mas.personal.apps]]
+id = 1451893560
+name = "Rakuten Cash Back"
+
+[[mas.personal.apps]]
+id = 1519867270
+name = "Refined GitHub"
+
+[[mas.personal.apps]]
+id = 1532163541
+name = "SponsorBlock port for YouTube - Skip Sponsorships"
+
+[[mas.personal.apps]]
+id = 1532579087
+name = "The Camelizer"
+
+[[mas.personal.apps]]
+id = 6745342698
+name = "uBlock Origin Lite"
+
+[[mas.personal.apps]]
+id = 1541862561
+name = "FireShot - Full web page screenshots"
+
+[[mas.personal.apps]]
+id = 6737570010
+name = "Editor Usage"
+
+[[mas.personal.apps]]
+id = 6755173244
+name = "Usage for Claude"
+
+[[mas.personal.apps]]
+id = 6756848973
+name = "BookShelves"
+
 [mas.hosts.neo]
-# Only on host neo
 apps = []

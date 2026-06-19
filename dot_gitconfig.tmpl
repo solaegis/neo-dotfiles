@@ -1,0 +1,22 @@
+{{ template "git/gitconfig-shared" . }}
+
+{{- $ctx := .context | default "personal" -}}
+{{- if eq $ctx "personal" }}
+{{ template "git/gitconfig-personal" . }}
+{{- else if hasPrefix $ctx "work-" }}
+{{- $slug := trimPrefix $ctx "work-" }}
+{{- $profile := index .profiles $slug }}
+{{ template "git/gitconfig-profile" (dict "profile" $profile) }}
+{{- end }}
+
+{{- $enabled := .enabledWorkProfiles | default list }}
+{{- range $p := $enabled }}
+{{- $prof := index $.profiles $p }}
+{{- if and $prof $prof.git_dir }}
+[includeIf "gitdir:~/git/{{ $prof.git_dir }}/"]
+	path = ~/.gitconfig-{{ $p }}
+{{- end }}
+{{- end }}
+
+[include]
+	path = ~/.config/git/github-urls.config

@@ -1,40 +1,58 @@
-# Homebrew formulae and casks. Generated from .chezmoidata.toml (mac / linux / hosts.<hostname>).
+# Homebrew formulae and casks. Generated from .chezmoidata.toml.
 # Install: brew bundle install --file="$HOME/Brewfile"
 
-{{- if eq .chezmoi.os "darwin" }}
-# --- All Macs ---
-{{- range .brew.mac.formulae }}
+{{- define "brewSection" -}}
+{{- range index . "formulae" | default list }}
 brew "{{ . }}"
 {{- end }}
-{{- range .brew.mac.casks }}
+{{- range index . "casks" | default list }}
 cask "{{ . }}"
 {{- end }}
-{{- with index .brew.hosts .chezmoi.hostname }}
-# --- This host only ({{ $.chezmoi.hostname }}) ---
-{{- range .formulae }}
-brew "{{ . }}"
+{{- range index . "vscode" | default list }}
+vscode "{{ . }}"
 {{- end }}
-{{- range .casks }}
-cask "{{ . }}"
+{{- range index . "cargo" | default list }}
+cargo "{{ . }}"
 {{- end }}
+{{- range index . "services" | default list }}
+brew services start {{ .name }}
 {{- end }}
 {{- end }}
 
+{{- range index .brew.shared "taps" | default list }}
+tap "{{ . }}"
+{{- end }}
+
+# --- Shared baseline ---
+{{- template "brewSection" .brew.shared }}
+
 {{- if eq .chezmoi.os "linux" }}
-# --- All Linux ---
-{{- range .brew.linux.formulae }}
-brew "{{ . }}"
+# --- Linux ---
+{{- template "brewSection" .brew.linux }}
 {{- end }}
-{{- range .brew.linux.casks }}
-cask "{{ . }}"
+
+{{- $ctx := .context | default "personal" -}}
+{{- if eq $ctx "personal" }}
+# --- Personal context ---
+{{- template "brewSection" .brew.personal }}
+{{- else if hasPrefix $ctx "work-" }}
+# --- Work context ---
+{{- template "brewSection" .brew.work }}
+{{- $slug := trimPrefix $ctx "work-" }}
+{{- with index .brew.profiles $slug }}
+# --- Work profile: {{ $slug }} ---
+{{- template "brewSection" . }}
 {{- end }}
+{{- end }}
+
+{{- range $p := .enabledWorkProfiles | default list }}
+{{- with index $.brew.profiles $p }}
+# --- Enabled profile: {{ $p }} ---
+{{- template "brewSection" . }}
+{{- end }}
+{{- end }}
+
 {{- with index .brew.hosts .chezmoi.hostname }}
-# --- This host only ({{ $.chezmoi.hostname }}) ---
-{{- range .formulae }}
-brew "{{ . }}"
-{{- end }}
-{{- range .casks }}
-cask "{{ . }}"
-{{- end }}
-{{- end }}
+# --- Host: {{ $.chezmoi.hostname }} ---
+{{- template "brewSection" . }}
 {{- end }}
