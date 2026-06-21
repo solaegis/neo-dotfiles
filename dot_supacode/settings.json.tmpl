@@ -1,0 +1,124 @@
+{
+  "global" : {
+    "agentPresenceBadgesEnabled" : true,
+    "analyticsEnabled" : true,
+    "appearanceMode" : "dark",
+    "autoUpdateAgentIntegrationsEnabled" : true,
+    "automatedActionPolicy" : "cliOnly",
+    "confirmQuitMode" : "auto",
+    "copyIgnoredOnWorktreeCreate" : false,
+    "copyUntrackedOnWorktreeCreate" : false,
+    "crashReportsEnabled" : true,
+    "defaultEditorID" : "auto",
+    "deleteBranchOnDeleteWorktree" : true,
+    "fetchOriginBeforeWorktreeCreation" : true,
+    "githubIntegrationEnabled" : true,
+    "globalScripts" : [
+
+    ],
+    "hideSingleTabBar" : false,
+    "inAppNotificationsEnabled" : true,
+    "moveNotifiedWorktreeToTop" : true,
+    "notificationSoundEnabled" : true,
+    "promptForWorktreeCreation" : true,
+    "pullRequestMergeStrategy" : "merge",
+    "richAgentNotificationsEnabled" : true,
+    "shortcutOverrides" : {
+
+    },
+    "systemNotificationsEnabled" : true,
+    "terminalThemeSyncEnabled" : true,
+    "terminateSessionsOnQuit" : false,
+    "updateChannel" : "stable",
+    "updatesAutomaticallyCheckForUpdates" : true,
+    "updatesAutomaticallyDownloadUpdates" : false
+  },
+  "pinnedWorktreeIDs" : [
+
+  ],
+  "repositories" : {
+    "\/Users\/{{ .chezmoi.username }}\/" : {
+      "archiveScript" : "",
+      "deleteScript" : "",
+      "openActionID" : "auto",
+      "runScript" : "",
+      "scripts" : [
+
+      ],
+      "setupScript" : ""
+    },
+    "\/Users\/{{ .chezmoi.username }}\/git\/solaegis\/nuvent\/" : {
+      "archiveScript" : "",
+      "deleteScript" : "",
+      "openActionID" : "auto",
+      "runScript" : "",
+      "scripts" : [
+        {
+          "command" : "task check",
+          "id" : "B62817BD-5D39-42BE-A7BF-CF85C1CFF7D6",
+          "kind" : "custom",
+          "name" : "Check (land gate)"
+        },
+        {
+          "command" : "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+          "id" : "1D47A35A-E66D-4026-A1B0-1D94E47C9C57",
+          "kind" : "custom",
+          "name" : "Lint (clippy -D warnings)"
+        },
+        {
+          "command" : "cargo fmt --all",
+          "id" : "E47D858E-B1B1-4BFB-BB78-67874D4C96C7",
+          "kind" : "custom",
+          "name" : "Format"
+        },
+        {
+          "command" : "SQLX_OFFLINE=true cargo nextest run --workspace --lib",
+          "id" : "D14FDDEB-DD59-4D0D-891A-558A7D47EB41",
+          "kind" : "custom",
+          "name" : "Test - unit (offline)"
+        },
+        {
+          "command" : "DATABASE_URL=sqlite:\/\/nuvent.db cargo nextest run --workspace --profile ci",
+          "id" : "804EBB64-CD16-45FF-AC58-C85B4B0A743C",
+          "kind" : "custom",
+          "name" : "Test - full (CI profile)"
+        },
+        {
+          "command" : "cargo run -p nuvent_schema_gen && task schema:validate",
+          "id" : "6BFD4897-EA88-4A4E-87F3-8AD7005F5F72",
+          "kind" : "custom",
+          "name" : "Schema regen + validate"
+        },
+        {
+          "command" : "cargo build --release -p nuvent_cli -p nuvent-server",
+          "id" : "F210B3EB-39EC-4E13-8AB1-7B68901CFC8F",
+          "kind" : "custom",
+          "name" : "Build release"
+        },
+        {
+          "command" : "cargo install --path crates\/nuvent_cli --force",
+          "id" : "595B6E10-079D-4AF5-BD5C-BFE707B5F9A8",
+          "kind" : "custom",
+          "name" : "Install CLI"
+        },
+        {
+          "command" : "cargo run --bin nuvent -- ",
+          "id" : "5CD5C6A9-7158-4779-ADE3-8C7EC1EC60E2",
+          "kind" : "custom",
+          "name" : "Run CLI (args)"
+        },
+        {
+          "command" : "cargo run -p nuvent-server",
+          "id" : "4B1B3766-2C4C-4F27-BBDC-18E6E5A7A32F",
+          "kind" : "custom",
+          "name" : "Run server"
+        }
+      ],
+      "setupScript" : "task setup"
+    }
+  },
+  "repositoryRoots" : [
+    "\/Users\/{{ .chezmoi.username }}\/",
+    "\/Users\/{{ .chezmoi.username }}\/git\/solaegis\/nuvent\/"
+  ]
+}

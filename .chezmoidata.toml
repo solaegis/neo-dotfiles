@@ -60,6 +60,7 @@ casks = [
   "codexbar",
   "pearcleaner",
   "stats",
+  "supacode",
   "supasidebar",
 ]
 

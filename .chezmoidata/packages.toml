@@ -58,3 +58,10 @@ layer = "shared"
 configs = [
   { target = "Library/Application Support/Cursor/User/settings.json", method = "managed" },
 ]
+
+[packages.supacode]
+type = "cask"
+layer = "personal"
+configs = [
+  { target = "dot_supacode/settings.json.tmpl", method = "template" },
+]
