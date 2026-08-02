@@ -6,17 +6,16 @@
 # Share: //nas.home.solaegis.com/timemachine  (SMB)
 # User:  lvavasour
 #
-# macOS Time Machine API
-#   sudo tmutil setdestination -a smb://user@host/share
-#     Adds (not replaces) a destination; prompts for SMB password once
-#     and stores it in the login keychain.
-#   tmutil destinationinfo
-#     Prints configured destinations; shows UUID, URL, last-backup time.
+# Strategy: create a properly-named sparsebundle on the mounted share and
+# register it with tmutil. This works even when the NAS smb.conf does not
+# have `fruit:time machine = yes` (which would otherwise cause error 0 /
+# "null" when passing a plain mount point to tmutil setdestination).
 #
-# Idempotency: checked against the SMB URL, NOT a UUID.
-# The UUID in destinationinfo is assigned per-client by macOS when the
-# destination is first registered; it differs on every machine and cannot
-# be used as a portable identifier across machines.
+# Time Machine sparsebundle naming convention (required):
+#   <ComputerName>_<en0-mac-address-with-dashes>.sparsebundle
+#   e.g. neo_a1-b2-c3-d4-e5-f6.sparsebundle
+#
+# Idempotency: checked against the SMB URL in tmutil destinationinfo.
 
 {{ if ne .chezmoi.os "darwin" -}}
 echo "Skipping Time Machine setup — not macOS ({{ .chezmoi.os }})."
@@ -28,27 +27,48 @@ set -eu
 NAS_HOST="nas.home.solaegis.com"
 NAS_USER="lvavasour"
 NAS_SHARE="timemachine"
-SMB_URL="smb://${NAS_USER}@${NAS_HOST}/${NAS_SHARE}"
+MOUNT_POINT="/Volumes/${NAS_SHARE}"
 
-# ── Already configured? (URL-based, portable across machines) ──────────────
+# Size of the sparsebundle cap. Sparse means it only consumes space actually
+# used; this is just the maximum Time Machine will grow to.
+SPARSEBUNDLE_SIZE="2t"
+
+# ── Already configured? (URL-based, portable across machines) ───────────────
 if tmutil destinationinfo 2>/dev/null | grep -qF "${NAS_HOST}/${NAS_SHARE}"; then
-  echo "✅ Time Machine destination already configured (${SMB_URL})."
+  echo "✅ Time Machine destination already configured."
   tmutil destinationinfo
   exit 0
 fi
 
+# ── Derive machine identity (needed for sparsebundle name) ──────────────────
+COMPUTER_NAME="$(scutil --get ComputerName 2>/dev/null || hostname -s)"
+# Get en0 MAC, lowercase, dashes instead of colons
+MAC_ADDR="$(ifconfig en0 2>/dev/null \
+  | awk '/ether/{print $2}' \
+  | tr ':' '-' \
+  | tr '[:upper:]' '[:lower:]')"
+
+if [ -z "${MAC_ADDR}" ]; then
+  echo "⚠️  Could not determine en0 MAC address. Falling back to hostname only."
+  BUNDLE_NAME="${COMPUTER_NAME}.sparsebundle"
+else
+  BUNDLE_NAME="${COMPUTER_NAME}_${MAC_ADDR}.sparsebundle"
+fi
+
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "  Time Machine setup — {{ .chezmoi.hostname }}"
-echo "  Destination: ${SMB_URL}"
+echo "  NAS share:    smb://${NAS_USER}@${NAS_HOST}/${NAS_SHARE}"
+echo "  Sparsebundle: ${BUNDLE_NAME}"
+echo "  Max size:     ${SPARSEBUNDLE_SIZE}"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-# ── NAS reachability check ──────────────────────────────────────────────────
+# ── NAS reachability check ───────────────────────────────────────────────────
 echo ""
 echo "🔍 Checking reachability of ${NAS_HOST} …"
 if ! ping -c 1 -W 2000 "${NAS_HOST}" >/dev/null 2>&1; then
   echo ""
   echo "⚠️  Cannot reach ${NAS_HOST}."
-  echo "   Ensure the NAS is on the network (or VPN / Tailscale if remote)."
+  echo "   Ensure the NAS is on the network (or Tailscale if remote)."
   echo ""
   printf "Continue anyway? [y/N] "
   read -r reply
@@ -61,12 +81,12 @@ if ! ping -c 1 -W 2000 "${NAS_HOST}" >/dev/null 2>&1; then
   esac
 fi
 
-# ── Confirmation ────────────────────────────────────────────────────────────
+# ── Confirmation ─────────────────────────────────────────────────────────────
 echo ""
-echo "This will add ${SMB_URL} as a Time Machine destination."
-echo "You will be prompted for:"
-echo "  1. Your SMB/NAS password (stored once in the login keychain)"
-echo "  2. Your macOS admin password (for tmutil)"
+echo "This will:"
+echo "  1. Mount smb://${NAS_HOST}/${NAS_SHARE}"
+echo "  2. Create ${BUNDLE_NAME} on the share (max ${SPARSEBUNDLE_SIZE}, grows on demand)"
+echo "  3. Register it as a Time Machine destination"
 echo ""
 printf "Continue? [y/N] "
 read -r reply
@@ -78,28 +98,86 @@ case "${reply}" in
     ;;
 esac
 
-# ── Add destination ─────────────────────────────────────────────────────────
-echo ""
-echo "🚀 Adding Time Machine destination …"
-echo "   (You may be prompted for your NAS password and macOS admin password)"
-echo ""
-
-if sudo tmutil setdestination -a "${SMB_URL}"; then
+# ── Mount the share ──────────────────────────────────────────────────────────
+if mount | grep -qF "${NAS_HOST}/${NAS_SHARE}"; then
   echo ""
-  echo "✅ Destination added."
+  echo "✅ Share already mounted at ${MOUNT_POINT}"
 else
   echo ""
-  echo "❌ tmutil setdestination failed."
+  echo "🔑 Opening share in Finder to authenticate …"
+  echo "   Enter your NAS password and tick 'Remember this password in my keychain'."
+  echo "   Then return here."
   echo ""
-  echo "Common causes:"
-  echo "  • Wrong NAS password — retry manually:"
-  echo "      sudo tmutil setdestination -a '${SMB_URL}'"
-  echo "  • SMB share not exported for Time Machine on the NAS"
-  echo "  • Firewall blocking SMB (port 445)"
+  # Omit username so macOS uses the keychain entry if one exists
+  open "smb://${NAS_HOST}/${NAS_SHARE}"
+
+  echo "Waiting for mount (up to 30 s) …"
+  i=0
+  while ! mount | grep -qF "${NAS_HOST}/${NAS_SHARE}"; do
+    i=$((i+1))
+    if [ "${i}" -ge 30 ]; then
+      echo ""
+      echo "❌ Timed out waiting for mount."
+      echo "   Complete the Finder password dialog, then retry this script."
+      exit 1
+    fi
+    sleep 1
+  done
+  echo "✅ Share mounted at ${MOUNT_POINT}"
+fi
+
+# ── Create sparsebundle on the share ────────────────────────────────────────
+BUNDLE_PATH="${MOUNT_POINT}/${BUNDLE_NAME}"
+
+if [ -e "${BUNDLE_PATH}" ]; then
+  echo ""
+  echo "✅ Sparsebundle already exists at ${BUNDLE_PATH}"
+else
+  echo ""
+  echo "📦 Creating sparsebundle (this may take a moment) …"
+  echo "   Path: ${BUNDLE_PATH}"
+  echo "   Size: ${SPARSEBUNDLE_SIZE} (sparse — only uses space as data is written)"
+  echo ""
+  # -fs HFS+J  : Time Machine requires HFS+ (journaled) inside the bundle
+  # -type SPARSEBUNDLE : grows on demand, supports Time Machine band files
+  # -nospotlight : suppress Spotlight indexing inside the bundle
+  if hdiutil create \
+      -size "${SPARSEBUNDLE_SIZE}" \
+      -type SPARSEBUNDLE \
+      -fs "HFS+J" \
+      -volname "Time Machine Backups" \
+      -nospotlight \
+      "${BUNDLE_PATH}"; then
+    echo ""
+    echo "✅ Sparsebundle created."
+  else
+    echo ""
+    echo "❌ hdiutil create failed."
+    echo "   Check that ${MOUNT_POINT} is writable and has sufficient space."
+    exit 1
+  fi
+fi
+
+# ── Register sparsebundle with Time Machine ──────────────────────────────────
+echo ""
+echo "🚀 Registering sparsebundle as Time Machine destination …"
+echo ""
+
+if sudo tmutil setdestination -a "${BUNDLE_PATH}"; then
+  echo ""
+  echo "✅ Destination registered."
+else
+  echo ""
+  echo "❌ tmutil setdestination failed on the sparsebundle path."
+  echo ""
+  echo "Troubleshooting:"
+  echo "  1. Confirm bundle exists:  ls '${BUNDLE_PATH}'"
+  echo "  2. Retry manually:"
+  echo "       sudo tmutil setdestination -a '${BUNDLE_PATH}'"
   exit 1
 fi
 
-# ── Verify ──────────────────────────────────────────────────────────────────
+# ── Verify ───────────────────────────────────────────────────────────────────
 echo ""
 echo "📋 Verifying …"
 if tmutil destinationinfo 2>/dev/null | grep -qF "${NAS_HOST}/${NAS_SHARE}"; then
@@ -112,7 +190,7 @@ if tmutil destinationinfo 2>/dev/null | grep -qF "${NAS_HOST}/${NAS_SHARE}"; the
   echo "   First backup may take several hours."
 else
   echo ""
-  echo "⚠️  Could not verify destination in destinationinfo after setup."
+  echo "⚠️  Could not verify destination in destinationinfo."
   echo "   Check 'tmutil destinationinfo' manually to confirm."
   echo ""
   tmutil destinationinfo
