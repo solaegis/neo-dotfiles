@@ -96,6 +96,12 @@ casks = []
 formulae = []
 casks = []
 
+[brew.hosts.atreides]
+formulae = []
+casks = [
+  "betterdisplay",  # drives .chezmoidata/displays.toml
+]
+
 # ----------------------------------------------------------------------------- 
 # Mac App Store — layered like brew
 # -----------------------------------------------------------------------------

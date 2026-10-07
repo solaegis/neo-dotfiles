@@ -1,0 +1,45 @@
+# Per-host display configuration, applied by run_onchange_after_displays.sh.tmpl
+# through BetterDisplay (cask installed via [brew.hosts.<host>]).
+#
+# Captured from atreides 2026-10-06 with `betterdisplaycli get` and
+# /Library/Displays/Contents/Resources/Overrides.
+
+# Samsung Odyssey G95NC (57", 7680x2160 panel) on the Mac Studio's native HDMI
+# port. "Looks like" 5120x1440 rendered 1x and smooth-scaled to the panel by
+# BetterDisplay; link stays 7680x2160 VRR 10-bit YCbCr 4:4:4.
+[[displays.hosts.atreides]]
+productName = "Odyssey G95NC"
+vendorID = 19501   # 0x4c2d (Samsung)
+productID = 29648  # 0x73d0
+resolution = "5120x1440"
+hiDPI = false
+refreshRate = "48-120Hz"
+connectionMode = "bpc:10+range:limited+encoding:ycbcr+chroma:444+hdrmode:sdr"
+main = true
+# BetterDisplay Pro protections: re-assert resolution, refresh, main status and
+# colour mode whenever macOS changes them (wake, reconnect, HDCP re-auth).
+# `protect` is set via the CLI (protects the current value).
+protect = ["protectResolution", "protectRefreshRate"]
+
+# Protections the 5.0.6 CLI refuses to set; written straight to BetterDisplay's
+# prefs as <key>@Display:<tagID> (tagID is found by matching name@Display:*).
+[displays.hosts.atreides.protectPrefs]
+protectAsMain = 1
+protectSDRColorMode = "10-bit Y444 Limited"
+
+# BetterDisplay "Edit the system configuration" + flexible (smooth) scaling,
+# restricted to 5120x1440. The app's pref keys really are spelled "Sacling".
+[displays.hosts.atreides.smoothScaling]
+minWidth = 5120
+maxWidth = 5120
+minHeight = 1440
+maxHeight = 1440
+
+# Resulting macOS display override (scale-resolutions <data>, base64), written to
+# /Library/Displays/Contents/Resources/Overrides/DisplayVendorID-4c2d/DisplayProductID-73d0
+[displays.hosts.atreides.override]
+scaleResolutions = [
+  "AAAoAAAAC0A=",              # 10240x2880
+  "AAAoAAAAC0AAAAAJACAAAA==",  # 10240x2880, flags
+  "AAAUAAAABaA=",              # 5120x1440
+]

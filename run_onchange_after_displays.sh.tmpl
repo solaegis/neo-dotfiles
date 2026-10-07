@@ -1,0 +1,120 @@
+{{- if eq .chezmoi.os "darwin" -}}
+{{- with index (.displays.hosts | default dict) .chezmoi.hostname -}}
+#!/bin/bash
+# Apply this host's display configuration (.chezmoidata/displays.toml) via
+# BetterDisplay: macOS scaled-resolution override, BetterDisplay scaling prefs,
+# display mode, connection mode and Pro protections. Re-runs when the data changes.
+# displays-checksum: {{ . | toJson | sha256sum }}
+
+set -euo pipefail
+
+APP="/Applications/BetterDisplay.app"
+BUNDLE_ID="pro.betterdisplay.BetterDisplay"
+CLI="$APP/Contents/MacOS/BetterDisplay"
+OVERRIDES="/Library/Displays/Contents/Resources/Overrides"
+
+if [ ! -d "$APP" ]; then
+  echo "displays: BetterDisplay not installed; skipping (brew bundle installs it)." >&2
+  exit 0
+fi
+
+bd() { "$CLI" "$@"; }
+
+wait_for_betterdisplay() {
+  for _ in $(seq 1 30); do
+    bd get -displayWithMainStatus -main >/dev/null 2>&1 && return 0
+    sleep 1
+  done
+  echo "displays: BetterDisplay did not respond to CLI within 30s." >&2
+  return 1
+}
+
+# --- 1. System display overrides (need root) ---------------------------------
+override_changed=0
+{{- range $d := . }}
+{{- with $d.override }}
+{{- $vid := printf "%x" $d.vendorID }}
+{{- $pid := printf "%x" $d.productID }}
+dir="$OVERRIDES/DisplayVendorID-{{ $vid }}"
+file="$dir/DisplayProductID-{{ $pid }}"
+tmp="$(mktemp)"
+cat >"$tmp" <<'PLIST'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>DisplayProductID</key>
+	<integer>{{ $d.productID }}</integer>
+	<key>DisplayVendorID</key>
+	<integer>{{ $d.vendorID }}</integer>
+	<key>scale-resolutions</key>
+	<array>
+{{- range .scaleResolutions }}
+		<data>{{ . }}</data>
+{{- end }}
+	</array>
+</dict>
+</plist>
+PLIST
+if [ -f "$file" ] && diff -q <(plutil -convert xml1 -o - "$file") <(plutil -convert xml1 -o - "$tmp") >/dev/null; then
+  echo "displays: override for {{ $d.productName }} already current."
+else
+  echo "displays: installing override for {{ $d.productName }} (sudo)."
+  sudo mkdir -p "$dir"
+  sudo install -m 0644 -o root -g wheel "$tmp" "$file"
+  override_changed=1
+fi
+rm -f "$tmp"
+{{- end }}
+{{- end }}
+
+# --- 2. BetterDisplay scaling prefs (app must be quit or it overwrites them) --
+osascript -e "quit app id \"$BUNDLE_ID\"" >/dev/null 2>&1 || true
+for _ in $(seq 1 10); do pgrep -xq BetterDisplay || break; sleep 1; done
+{{- range $d := . }}
+{{- with $d.smoothScaling }}
+{{- $k := printf "v%dm%d" $d.vendorID $d.productID }}
+defaults write "$BUNDLE_ID" "overridesEnabled@{{ $k }}" -bool true
+defaults write "$BUNDLE_ID" "smoothScaling@{{ $k }}" -bool true
+defaults write "$BUNDLE_ID" "smoothSaclingCustomize@{{ $k }}" -bool true
+defaults write "$BUNDLE_ID" "smoothSaclingMinWidth@{{ $k }}" -int {{ .minWidth }}
+defaults write "$BUNDLE_ID" "smoothSaclingMaxWidth@{{ $k }}" -int {{ .maxWidth }}
+defaults write "$BUNDLE_ID" "smoothSaclingMinHeight@{{ $k }}" -int {{ .minHeight }}
+defaults write "$BUNDLE_ID" "smoothSaclingMaxHeight@{{ $k }}" -int {{ .maxHeight }}
+{{- end }}
+{{- with $d.protectPrefs }}
+tag="$(defaults read "$BUNDLE_ID" 2>/dev/null | sed -n 's/^ *"name@Display:\([0-9]*\)" = "\{0,1\}{{ $d.productName }}"\{0,1\};$/\1/p' | head -n1)"
+if [ -n "$tag" ]; then
+{{- range $key, $val := . }}
+  defaults write "$BUNDLE_ID" "{{ $key }}@Display:$tag" {{ if kindIs "string" $val }}-string {{ $val | quote }}{{ else }}-int {{ $val }}{{ end }}
+{{- end }}
+else
+  echo "displays: BetterDisplay has not seen {{ $d.productName }} yet; re-run this script after it has, to set {{ keys . | sortAlpha | join ", " }}." >&2
+fi
+{{- end }}
+{{- end }}
+open -g -a "$APP"
+wait_for_betterdisplay
+
+# --- 3. Display mode, connection mode, main, protections ---------------------
+{{- range $d := . }}
+sel=(-productName={{ $d.productName | quote }})
+if bd set "${sel[@]}" -resolution={{ $d.resolution }} -hiDPI={{ if $d.hiDPI }}on{{ else }}off{{ end }} -refreshRate={{ $d.refreshRate }}; then
+{{- with $d.connectionMode }}
+  bd set "${sel[@]}" -connectionMode={{ . }} || echo "displays: connection mode not applied on {{ $d.productName }}." >&2
+{{- end }}
+{{- if $d.main }}
+  bd set "${sel[@]}" -main=on || true
+{{- end }}
+{{- range $d.protect }}
+  bd set "${sel[@]}" -{{ . }}=on || echo "displays: {{ . }} not applied on {{ $d.productName }} (Pro feature?)." >&2
+{{- end }}
+  echo "displays: {{ $d.productName }} -> $(bd get "${sel[@]}" -resolution -hiDPI -refreshRate)"
+elif [ "$override_changed" = 1 ]; then
+  echo "displays: {{ $d.productName }} {{ $d.resolution }} not offered yet; replug the display or restart, then re-run 'chezmoi apply'." >&2
+else
+  echo "displays: failed to set mode on {{ $d.productName }} (is it connected?)." >&2
+fi
+{{- end }}
+{{- end }}
+{{- end }}
