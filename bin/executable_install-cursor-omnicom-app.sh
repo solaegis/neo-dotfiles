@@ -172,7 +172,7 @@ cat >"${APP_DIR}/Contents/Info.plist" <<EOF
 </plist>
 EOF
 
-# --- Badged icon (Cursor + OM) ------------------------------------------------
+# --- Badged icon (Cursor + O, zoomed for Liquid Glass safe area) --------------
 BASE_PNG="${TMP}/cursor-base.png"
 BADGED_PNG="${TMP}/cursor-badged.png"
 sips -s format png "${CURSOR_ICNS}" --out "${BASE_PNG}" >/dev/null
@@ -195,18 +195,31 @@ let pixelSize = NSSize(width: 1024, height: 1024)
 let out = NSImage(size: pixelSize)
 out.lockFocus()
 NSGraphicsContext.current?.imageInterpolation = .high
+
+// Zoom out so the corner badge survives macOS Liquid Glass / squircle masking.
+let contentScale: CGFloat = 0.78
+let contentSide = pixelSize.width * contentScale
+let contentOrigin = (pixelSize.width - contentSide) / 2.0
+let contentRect = NSRect(
+  x: contentOrigin,
+  y: contentOrigin,
+  width: contentSide,
+  height: contentSide
+)
+NSColor.black.setFill()
+NSBezierPath(rect: NSRect(origin: .zero, size: pixelSize)).fill()
 base.draw(
-  in: NSRect(origin: .zero, size: pixelSize),
+  in: contentRect,
   from: .zero,
   operation: .sourceOver,
   fraction: 1.0
 )
 
-let badgeSide = pixelSize.width * 0.36
-let margin = pixelSize.width * 0.06
+let badgeSide = contentSide * 0.30
+let margin = contentSide * 0.08
 let badgeRect = NSRect(
-  x: pixelSize.width - badgeSide - margin,
-  y: margin,
+  x: contentRect.maxX - badgeSide - margin,
+  y: contentRect.minY + margin,
   width: badgeSide,
   height: badgeSide
 )
@@ -217,8 +230,8 @@ NSColor.white.withAlphaComponent(0.9).setStroke()
 badgePath.lineWidth = max(2.0, pixelSize.width * 0.008)
 badgePath.stroke()
 
-let label = "OM" as NSString
-let font = NSFont.boldSystemFont(ofSize: badgeSide * 0.42)
+let label = "O" as NSString
+let font = NSFont.boldSystemFont(ofSize: badgeSide * 0.55)
 let attrs: [NSAttributedString.Key: Any] = [
   .font: font,
   .foregroundColor: NSColor.white
@@ -259,7 +272,7 @@ cat >"${ICON_DIR}/icon.json" <<'JSON'
           "image-name" : "logo.png",
           "name" : "Logo",
           "position" : {
-            "scale" : 1,
+            "scale" : 0.92,
             "translation-in-points" : [0, 0]
           }
         }
