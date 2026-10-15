@@ -139,9 +139,9 @@ cat >"${APP_DIR}/Contents/Info.plist" <<EOF
   <key>CFBundlePackageType</key>
   <string>APPL</string>
   <key>CFBundleShortVersionString</key>
-  <string>1.1.0</string>
+  <string>1.1.2</string>
   <key>CFBundleVersion</key>
-  <string>2</string>
+  <string>4</string>
   <key>LSMinimumSystemVersion</key>
   <string>13.0</string>
   <key>NSHighResolutionCapable</key>
@@ -172,7 +172,7 @@ cat >"${APP_DIR}/Contents/Info.plist" <<EOF
 </plist>
 EOF
 
-# --- Badged icon (Cursor + O, zoomed for Liquid Glass safe area) --------------
+# --- Badged icon (Cursor + O, inset for squircle safe area) -------------------
 BASE_PNG="${TMP}/cursor-base.png"
 BADGED_PNG="${TMP}/cursor-badged.png"
 sips -s format png "${CURSOR_ICNS}" --out "${BASE_PNG}" >/dev/null
@@ -196,30 +196,21 @@ let out = NSImage(size: pixelSize)
 out.lockFocus()
 NSGraphicsContext.current?.imageInterpolation = .high
 
-// Zoom out so the corner badge survives macOS Liquid Glass / squircle masking.
-let contentScale: CGFloat = 0.78
-let contentSide = pixelSize.width * contentScale
-let contentOrigin = (pixelSize.width - contentSide) / 2.0
-let contentRect = NSRect(
-  x: contentOrigin,
-  y: contentOrigin,
-  width: contentSide,
-  height: contentSide
-)
-NSColor.black.setFill()
-NSBezierPath(rect: NSRect(origin: .zero, size: pixelSize)).fill()
+// Full-bleed Cursor base (same as Acxiom). Keep the O badge inside the
+// squircle safe zone — macOS corner radius clips ~10% of a corner-flush badge.
 base.draw(
-  in: contentRect,
+  in: NSRect(origin: .zero, size: pixelSize),
   from: .zero,
   operation: .sourceOver,
   fraction: 1.0
 )
 
-let badgeSide = contentSide * 0.30
-let margin = contentSide * 0.08
+// Match Acxiom's post-actool safe footprint (badge ends ~15% in from edges).
+let badgeSide = pixelSize.width * 0.28
+let margin = pixelSize.width * 0.18
 let badgeRect = NSRect(
-  x: contentRect.maxX - badgeSide - margin,
-  y: contentRect.minY + margin,
+  x: pixelSize.width - badgeSide - margin,
+  y: margin,
   width: badgeSide,
   height: badgeSide
 )
@@ -272,7 +263,7 @@ cat >"${ICON_DIR}/icon.json" <<'JSON'
           "image-name" : "logo.png",
           "name" : "Logo",
           "position" : {
-            "scale" : 0.92,
+            "scale" : 0.65,
             "translation-in-points" : [0, 0]
           }
         }
