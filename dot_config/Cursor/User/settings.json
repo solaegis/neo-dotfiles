@@ -1,5 +1,89 @@
 {
+    "files.associations": {
+        "*.nv": "yaml"
+    },
+    "[yaml]": {
+        "editor.defaultFormatter": "redhat.vscode-yaml"
+    },
     "window.commandCenter": true,
-    "terminal.integrated.fontFamily": "MesloLGS NF, Menlo, monospace",
-    "workbench.panel.defaultLocation": "bottom"
+    "terminal.integrated.sendKeybindingsToShell": true,
+    "terminal.integrated.fontFamily": "monospace,'MesloLGS Nerd Font'",
+    "terminal.integrated.fontLigatures.enabled": true,
+    "terminal.integrated.showExitAlert": false,
+    "redhat.telemetry.enabled": false,
+    "claudeCode.preferredLocation": "panel",
+    "workbench.panel.defaultLocation": "right",
+    "workbench.sideBar.location": "left",
+    "workbench.agentsWindowButton.enabled": false,
+    "cursor.openai.apiKey": "sk-local-dev-key",
+    "cursor.openai.apiBase": "http://localhost:4001/v1",
+    "cursor.models.customModels": [
+        {
+            "model": "qwen2.5-coder-7b",
+            "name": "Qwen 2.5 Coder 7B (local)",
+            "maxTokens": 32768
+        },
+        {
+            "model": "qwen2.5-coder-14b",
+            "name": "Qwen 2.5 Coder 14B (local)",
+            "maxTokens": 32768
+        },
+        {
+            "model": "gemma4",
+            "name": "Gemma 4 (local)",
+            "maxTokens": 131072
+        },
+        {
+            "model": "gemma4-27b",
+            "name": "Gemma 4 27B (local)",
+            "maxTokens": 262144
+        },
+        {
+            "model": "phi4",
+            "name": "Phi-4 (local)",
+            "maxTokens": 16384
+        },
+        {
+            "model": "llama3.3-70b",
+            "name": "Llama 3.3 70B (local)",
+            "maxTokens": 131072
+        }
+    ],
+    "cursor.openai.models": [
+        "auto",
+        "router",
+        "commit",
+        "commit-sage",
+        "qwen2.5-coder-7b",
+        "qwen2.5-coder-14b",
+        "deepseek-coder-v2",
+        "phi4",
+        "llama3.3-70b",
+        "gemma4",
+        "gemma4-27b",
+        "gpt-4o",
+        "gpt-4o-mini",
+        "gpt-3.5-turbo",
+        "text-embedding-3-small"
+    ],
+    "ollama.defaultModel": "phi4:latest",
+    "commitSage.openai.baseUrl": "http://127.0.0.1:54321/v1",
+    "commitSage.provider.type": "openai",
+    "commitSage.openai.model": "apple-foundationmodel",
+    "editor.accessibilitySupport": "on",
+    "veracode-scan.SCA Vulnerability.sevFilters": [],
+    "veracode-scan.SCA Vulnerability.usageFilters": [],
+    "veracode-scan.SAST Flaw.sevFilters": [],
+    "veracode-scan.SCA Features.policy": false,
+    "window.autoDetectColorScheme": false,
+    "remote.SSH.remotePlatform": {
+        "atreides.local": "macOS",
+        "atreides": "macOS",
+        "homepage": "linux",
+        "authelia.home.solaegis.com": "linux",
+        "auth": "linux"
+    },
+    "remote.SSH.defaultExtensions": [],
+    "remote.SSH.path": "/opt/homebrew/bin/ssh",
+    "cursor.composer.queueMessageDefaultBehavior": "steer"
 }

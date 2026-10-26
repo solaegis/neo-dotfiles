@@ -1,0 +1,17 @@
+# Cursor Personal extensions, installed by run_onchange_cursor-extensions.sh.tmpl.
+# Harvested from atreides Personal (shared ~/.cursor/extensions) 2026-10-26.
+# redhat.vscode-yaml is the YAML formatter referenced in settings.json.
+
+[cursor]
+extensions = [
+  "anthropic.claude-code",
+  "antoniocarelli.confluence-smart-publisher",
+  "anysphere.remote-containers",
+  "anysphere.remote-ssh",
+  "bierner.markdown-mermaid",
+  "davidanson.vscode-markdownlint",
+  "domoarigatomrburato.userdata-switcher",
+  "redhat.vscode-yaml",
+  "rust-lang.rust-analyzer",
+  "veracode.veracode-vscode-plugin",
+]

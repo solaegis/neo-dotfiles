@@ -1,0 +1,25 @@
+#!/bin/sh
+# Install Cursor gallery extensions listed in .chezmoidata/cursor.toml.
+# Re-runs when the extension list changes.
+# cursor-extensions-checksum: {{ .cursor.extensions | toJson }}
+set -e
+
+CURSOR_BIN="$(command -v cursor 2>/dev/null || true)"
+if [ -z "$CURSOR_BIN" ] && [ -x "/Applications/Cursor.app/Contents/Resources/app/bin/cursor" ]; then
+  CURSOR_BIN="/Applications/Cursor.app/Contents/Resources/app/bin/cursor"
+fi
+if [ -z "$CURSOR_BIN" ]; then
+  echo "cursor: CLI not found; skipping extension install." >&2
+  exit 0
+fi
+
+installed="$("$CURSOR_BIN" --list-extensions 2>/dev/null || true)"
+{{- range .cursor.extensions }}
+id="{{ . }}"
+if printf '%s\n' "$installed" | grep -qx "$id"; then
+  echo "cursor: $id already installed"
+else
+  echo "cursor: installing $id"
+  "$CURSOR_BIN" --install-extension "$id"
+fi
+{{- end }}

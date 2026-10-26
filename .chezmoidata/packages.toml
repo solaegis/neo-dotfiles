@@ -57,6 +57,9 @@ type = "cask"
 layer = "shared"
 configs = [
   { target = "Library/Application Support/Cursor/User/settings.json", method = "managed" },
+  { target = "dot_config/Cursor/User/settings.json", method = "managed" },
+  { target = ".chezmoidata/cursor.toml", method = "managed" },
+  { target = "run_onchange_cursor-extensions.sh.tmpl", method = "run_onchange" },
 ]
 
 [packages.supacode]
